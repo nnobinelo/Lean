@@ -17,19 +17,12 @@ CMD ["/sbin/my_init"]
 # Have to add env TZ=UTC. See https://github.com/dotnet/coreclr/issues/602
 RUN env TZ=UTC
 
-# Install software-properties-common Package for add-apt-repository command.
-RUN apt-get update \
-    && apt-get install -y software-properties-common
-
 # Install OS Packages:
 # Misc tools for running Python.NET and IB inside a headless container.
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test \
-    # Swap order of these 2 lines: https://stackoverflow.com/questions/65679812/ubuntu-18-4-install-r-language-3-5
-    # Also use "hkp://" and port 80 on keyserver url: https://unix.stackexchange.com/questions/399027/gpg-keyserver-receive-failed-server-indicated-a-failure
-#   && echo deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/ >> /etc/apt/sources.list \
-#   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
-   && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
    && echo deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/ >> /etc/apt/sources.list \
+   # Use "hkp://" and port 80 on keyserver url: https://unix.stackexchange.com/questions/399027/gpg-keyserver-receive-failed-server-indicated-a-failure
+   && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
    && add-apt-repository ppa:apt-fast/stable && apt-get update && apt-get -y install apt-fast \
    && apt-fast install -y git bzip2 curl unzip wget python3-pip python-opengl zlib1g-dev \
    xvfb libxrender1 libxtst6 libxi6 libglib2.0-dev libopenmpi-dev libstdc++6 openmpi-bin \
