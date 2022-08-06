@@ -17,12 +17,21 @@ CMD ["/sbin/my_init"]
 # Have to add env TZ=UTC. See https://github.com/dotnet/coreclr/issues/602
 RUN env TZ=UTC
 
+# Update CUDA Linux GPG repo key. Only unrecommended "Alternate method: Manually install the new signing key" method
+# seems to work.
+# https://developer.nvidia.com/blog/updating-the-cuda-linux-gpg-repository-key/
+# https://github.com/NVIDIA/nvidia-docker/issues/1631#issuecomment-1112828208
+RUN rm /etc/apt/sources.list.d/cuda.list \
+    && rm /etc/apt/sources.list.d/nvidia-ml.list \
+    && apt-key del 7fa2af80 \
+    && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub \
+    && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64/7fa2af80.pub
+
 # Install OS Packages:
 # Misc tools for running Python.NET and IB inside a headless container.
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test \
    && echo deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/ >> /etc/apt/sources.list \
-   # Use "hkp://" and port 80 on keyserver url: https://unix.stackexchange.com/questions/399027/gpg-keyserver-receive-failed-server-indicated-a-failure
-   && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+   && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
    && add-apt-repository ppa:apt-fast/stable && apt-get update && apt-get -y install apt-fast \
    && apt-fast install -y git bzip2 curl unzip wget python3-pip python-opengl zlib1g-dev \
    xvfb libxrender1 libxtst6 libxi6 libglib2.0-dev libopenmpi-dev libstdc++6 openmpi-bin \
