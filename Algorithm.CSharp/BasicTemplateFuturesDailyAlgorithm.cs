@@ -54,7 +54,7 @@ namespace QuantConnect.Algorithm.CSharp
 
             // set our expiry filter for this futures chain
             // SetFilter method accepts TimeSpan objects or integer for days.
-            // The following statements yield the same filtering criteria 
+            // The following statements yield the same filtering criteria
             futureSP500.SetFilter(TimeSpan.Zero, TimeSpan.FromDays(182));
             futureGold.SetFilter(0, 182);
         }
@@ -76,8 +76,9 @@ namespace QuantConnect.Algorithm.CSharp
                         select futuresContract
                     ).FirstOrDefault();
 
-                    // if found, trade it
-                    if (contract != null && IsMarketOpen(contract.Symbol))
+                    // if found and exchange is open, trade it. Exchange could be closed, for example for a bar after 6:00pm on a friday, when futures
+                    // markets are closed.
+                    if (contract != null && Securities[contract.Symbol].Exchange.ExchangeOpen)
                     {
                         _contractSymbol = contract.Symbol;
                         MarketOrder(_contractSymbol, 1);
@@ -109,38 +110,48 @@ namespace QuantConnect.Algorithm.CSharp
         public virtual Language[] Languages { get; } = { Language.CSharp, Language.Python };
 
         /// <summary>
+        /// Data Points count of all timeslices of algorithm
+        /// </summary>
+        public virtual long DataPoints => 13559;
+
+        /// <summary>
+        /// Data Points count of the algorithm history
+        /// </summary>
+        public virtual int AlgorithmHistoryDataPoints => 0;
+
+        /// <summary>
         /// This is used by the regression test system to indicate what the expected statistics are from running the algorithm
         /// </summary>
         public virtual Dictionary<string, string> ExpectedStatistics => new Dictionary<string, string>
         {
-            {"Total Trades", "92"},
-            {"Average Win", "0.08%"},
+            {"Total Trades", "152"},
+            {"Average Win", "0.09%"},
             {"Average Loss", "-0.01%"},
-            {"Compounding Annual Return", "-0.450%"},
-            {"Drawdown", "0.500%"},
-            {"Expectancy", "-0.824"},
-            {"Net Profit", "-0.453%"},
-            {"Sharpe Ratio", "-1.803"},
+            {"Compounding Annual Return", "-0.638%"},
+            {"Drawdown", "0.600%"},
+            {"Expectancy", "-0.871"},
+            {"Net Profit", "-0.643%"},
+            {"Sharpe Ratio", "-2.323"},
             {"Probabilistic Sharpe Ratio", "0%"},
-            {"Loss Rate", "98%"},
-            {"Win Rate", "2%"},
-            {"Profit-Loss Ratio", "7.09"},
-            {"Alpha", "-0.003"},
+            {"Loss Rate", "99%"},
+            {"Win Rate", "1%"},
+            {"Profit-Loss Ratio", "8.83"},
+            {"Alpha", "-0.004"},
             {"Beta", "-0.001"},
             {"Annual Standard Deviation", "0.002"},
             {"Annual Variance", "0"},
-            {"Information Ratio", "-1.394"},
+            {"Information Ratio", "-1.408"},
             {"Tracking Error", "0.089"},
-            {"Treynor Ratio", "4.298"},
-            {"Total Fees", "$170.20"},
-            {"Estimated Strategy Capacity", "$36000.00"},
-            {"Lowest Capacity Asset", "ES VP274HSU1AF5"},
-            {"Fitness Score", "0.009"},
+            {"Treynor Ratio", "3.612"},
+            {"Total Fees", "$281.20"},
+            {"Estimated Strategy Capacity", "$1000.00"},
+            {"Lowest Capacity Asset", "ES VRJST036ZY0X"},
+            {"Fitness Score", "0.013"},
             {"Kelly Criterion Estimate", "0"},
             {"Kelly Criterion Probability Value", "0"},
-            {"Sortino Ratio", "-0.8"},
+            {"Sortino Ratio", "-1.45"},
             {"Return Over Maximum Drawdown", "-0.992"},
-            {"Portfolio Turnover", "0.025"},
+            {"Portfolio Turnover", "0.04"},
             {"Total Insights Generated", "0"},
             {"Total Insights Closed", "0"},
             {"Total Insights Analysis Completed", "0"},
@@ -154,7 +165,7 @@ namespace QuantConnect.Algorithm.CSharp
             {"Mean Population Magnitude", "0%"},
             {"Rolling Averaged Population Direction", "0%"},
             {"Rolling Averaged Population Magnitude", "0%"},
-            {"OrderListHash", "09b2f274fa2385597a803e58b784f675"}
+            {"OrderListHash", "48bfc4d255420cb589e00cf582554e0a"}
         };
     }
 }

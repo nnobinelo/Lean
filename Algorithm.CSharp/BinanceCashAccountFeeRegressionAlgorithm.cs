@@ -39,6 +39,16 @@ namespace QuantConnect.Algorithm.CSharp
         }
 
         /// <summary>
+        /// Data Points count of all timeslices of algorithm
+        /// </summary>
+        public override long DataPoints => 50;
+
+        /// <summary>
+        /// Data Points count of the algorithm history
+        /// </summary>
+        public override int AlgorithmHistoryDataPoints => 28;
+
+        /// <summary>
         /// This is used by the regression test system to indicate what the expected statistics are from running the algorithm
         /// </summary>
         public override Dictionary<string, string> ExpectedStatistics => new()
@@ -62,8 +72,8 @@ namespace QuantConnect.Algorithm.CSharp
             {"Information Ratio", "0"},
             {"Tracking Error", "0"},
             {"Treynor Ratio", "0"},
-            {"Total Fees", "$45.62"},
-            {"Estimated Strategy Capacity", "$220000.00"},
+            {"Total Fees", "₮45.62"},
+            {"Estimated Strategy Capacity", "₮220000.00"},
             {"Lowest Capacity Asset", "BTCUSDT 18N"},
             {"Fitness Score", "0.208"},
             {"Kelly Criterion Estimate", "0"},
@@ -77,9 +87,9 @@ namespace QuantConnect.Algorithm.CSharp
             {"Long Insight Count", "0"},
             {"Short Insight Count", "0"},
             {"Long/Short Ratio", "100%"},
-            {"Estimated Monthly Alpha Value", "USDT0"},
-            {"Total Accumulated Estimated Alpha Value", "USDT0"},
-            {"Mean Population Estimated Insight Value", "USDT0"},
+            {"Estimated Monthly Alpha Value", "₮0"},
+            {"Total Accumulated Estimated Alpha Value", "₮0"},
+            {"Mean Population Estimated Insight Value", "₮0"},
             {"Mean Population Direction", "0%"},
             {"Mean Population Magnitude", "0%"},
             {"Rolling Averaged Population Direction", "0%"},
