@@ -21,15 +21,15 @@
   //Research notebook
   //"composer-dll-directory": ".",
 
-  //Object store directory name for Research Notebook
-  "research-object-store-name": "QuantBook",
-
   // engine
   "data-folder": "../../../Data/",
 
   // debugging configuration - options for debugging-method LocalCmdLine, VisualStudio, Debugpy, PyCharm
   "debugging": false,
   "debugging-method": "LocalCmdline",
+
+  // location of a python virtual env to use libraries from
+  //"python-venv": "/venv",
 
   // handlers
   "log-handler": "QuantConnect.Logging.CompositeLogHandler",
@@ -39,7 +39,6 @@
   "map-file-provider": "QuantConnect.Data.Auxiliary.LocalDiskMapFileProvider",
   "factor-file-provider": "QuantConnect.Data.Auxiliary.LocalDiskFactorFileProvider",
   "data-provider": "QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider",
-  "alpha-handler": "QuantConnect.Lean.Engine.Alphas.DefaultAlphaHandler",
   "data-channel-provider": "DataChannelProvider",
   "object-store": "QuantConnect.Lean.Engine.Storage.LocalObjectStore",
   "data-aggregator": "QuantConnect.Lean.Engine.DataFeeds.AggregationManager",
@@ -48,6 +47,12 @@
   "symbol-minute-limit": 10000,
   "symbol-second-limit": 10000,
   "symbol-tick-limit": 10000,
+
+  // log missing data files, useful for debugging
+  "show-missing-data-logs": false,
+
+  // For live trading during warmup we limit the amount of historical data fetched from the history provider and expect the data to be on disk for older data
+  "maximum-warmup-history-days-look-back": 5,
 
   // limits the amount of data points per chart series. Applies only for backtesting
   "maximum-data-points-per-chart-series": 4000,
@@ -83,6 +88,7 @@
   "ib-trading-mode": "paper",
   "ib-enable-delayed-streaming-data": false,
   "ib-version": "974",
+  "ib-weekly-restart-utc-time": "22:00:00",
 
   // tradier configuration
   "tradier-environment": "paper",
@@ -120,8 +126,15 @@
   // binance configuration
   "binance-api-secret": "",
   "binance-api-key": "",
+  // spot/margin
   "binance-api-url": "https://api.binance.com",
   "binance-websocket-url": "wss://stream.binance.com:9443/ws",
+  // USDT futures
+  "binance-fapi-url": "https://fapi.binance.com",
+  "binance-fwebsocket-url": "wss://fstream.binance.com/ws",
+  // Coin futures
+  "binance-dapi-url": "https://dapi.binance.com",
+  "binance-dwebsocket-url": "wss://dstream.binance.com/ws",
 
   // binance.us configuration
   "binanceus-api-secret": "",
@@ -143,6 +156,20 @@
   "atreyu-client-id": "",
   "atreyu-broker-mpid": "",
   "atreyu-locate-rqd": "",
+
+  // wolverine configuration
+  "wolverine-host": "",
+  "wolverine-port": "",
+  "wolverine-account": "",
+  "wolverine-sender-comp-id": "",
+  "wolverine-target-comp-id": "",
+  "wolverine-on-behalf-of-comp-id": "",
+  "wolverine-log-fix-messages": false,
+
+  // TDAmeritrade configuration
+  "tdameritrade-account-number": "",
+  "tdameritrade-api-key": "",
+  "tdameritrade-access-token": "",
 
   // Trading Technologies configuration
   "tt-user-name": "",
@@ -230,6 +257,9 @@
   // specify supported languages when running regression tests
   "regression-test-languages": [ "CSharp", "Python" ],
 
+  // Additional paths to include in python for import resolution
+  "python-additional-paths": [],
+
   "environments": {
 
     // defines the 'backtesting' environment
@@ -308,7 +338,7 @@
       "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
       "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
       "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler",
-      "history-provider": [ "TradierBrokerage", "SubscriptionDataReaderHistoryProvider" ]
+      "history-provider": [ "BrokerageHistoryProvider", "SubscriptionDataReaderHistoryProvider" ]
     },
 
     // defines the 'live-interactive' environment
@@ -405,6 +435,34 @@
       // real brokerage implementations require the BrokerageTransactionHandler
       "live-mode-brokerage": "QuantConnect.BinanceBrokerage.BinanceBrokerage",
       "data-queue-handler": [ "QuantConnect.BinanceBrokerage.BinanceBrokerage" ],
+      "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
+      "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
+      "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
+      "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
+      "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler",
+      "history-provider": [ "BrokerageHistoryProvider", "SubscriptionDataReaderHistoryProvider" ]
+    },
+
+    "live-futures-binance": {
+      "live-mode": true,
+
+      // real brokerage implementations require the BrokerageTransactionHandler
+      "live-mode-brokerage": "QuantConnect.BinanceBrokerage.BinanceFuturesBrokerage",
+      "data-queue-handler": [ "QuantConnect.BinanceBrokerage.BinanceFuturesBrokerage" ],
+      "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
+      "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
+      "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
+      "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
+      "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler",
+      "history-provider": [ "BrokerageHistoryProvider", "SubscriptionDataReaderHistoryProvider" ]
+    },
+
+    "live-coin-futures-binance": {
+      "live-mode": true,
+
+      // real brokerage implementations require the BrokerageTransactionHandler
+      "live-mode-brokerage": "QuantConnect.BinanceBrokerage.BinanceCoinFuturesBrokerage",
+      "data-queue-handler": [ "QuantConnect.BinanceBrokerage.BinanceCoinFuturesBrokerage" ],
       "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
       "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
       "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
@@ -512,6 +570,33 @@
       "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
       "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler",
       "history-provider": [ "BrokerageHistoryProvider", "SubscriptionDataReaderHistoryProvider" ]
+    },
+
+    "live-wolverine": {
+      "live-mode": true,
+
+      // real brokerage implementations require the BrokerageTransactionHandler
+      "live-mode-brokerage": "WolverineBrokerage",
+      "history-provider": [ "SubscriptionDataReaderHistoryProvider" ],
+      "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
+      "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
+      "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
+      "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
+      "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler"
+    },
+
+    "live-tdameritrade": {
+      "live-mode": true,
+
+      // real brokerage implementations require the BrokerageTransactionHandler
+      "live-mode-brokerage": "TDAmeritradeBrokerage",
+      "history-provider": [ "BrokerageHistoryProvider", "SubscriptionDataReaderHistoryProvider" ],
+      "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
+      "result-handler": "QuantConnect.Lean.Engine.Results.LiveTradingResultHandler",
+      "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
+      "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler",
+      "transaction-handler": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler",
+      "data-queue-handler": [ "TDAmeritradeBrokerage" ]
     }
   }
 }
